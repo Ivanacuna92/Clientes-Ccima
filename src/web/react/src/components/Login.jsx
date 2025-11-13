@@ -38,7 +38,7 @@ function Login({ onLoginSuccess }) {
       <div className="max-w-md w-full space-y-8">
         <div>
           <h2 className="mt-6 text-center text-3xl font-extrabold text-navetec-primary">
-            GabyLimp WhatsApp
+            CCIMA WhatsApp
           </h2>
           <p className="mt-2 text-center text-sm text-gray-600">
             Panel de gestión de conversaciones
@@ -93,7 +93,7 @@ function Login({ onLoginSuccess }) {
             <button
               type="submit"
               disabled={loading}
-              className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-navetec-primary hover:bg-navetec-primary-dark focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-navetec-primary disabled:opacity-50 disabled:cursor-not-allowed"
+              className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-navetec-accent-red hover:bg-navetec-accent-red-dark focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-navetec-accent-red disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {loading ? (
                 <div className="flex items-center">
@@ -108,7 +108,7 @@ function Login({ onLoginSuccess }) {
 
           <div className="text-xs text-gray-500 text-center mt-4">
             <strong>Usuarios por defecto:</strong><br />
-            <strong>Admin:</strong> admin@gabylimp.com / gabylimp*2025<br />
+            <strong>Admin:</strong> admin@ccima.com / ccima*2025<br />
           </div>
         </form>
       </div>

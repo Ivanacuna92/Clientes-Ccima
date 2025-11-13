@@ -90,60 +90,60 @@ function ContactsList({ contacts, setContacts, selectedContact, onSelectContact 
             <div
               key={contact.phone}
               className={`flex items-center p-4 border-b cursor-pointer transition-all ${
-                contact.mode === 'support' 
-                  ? 'bg-orange-50 border-orange-200 hover:bg-orange-100' 
-                  : selectedContact?.phone === contact.phone 
-                    ? 'bg-gray-100 border-gray-100 border-l-4' 
+                contact.mode === 'support'
+                  ? 'bg-blue-50 border-blue-200 hover:bg-blue-100'
+                  : selectedContact?.phone === contact.phone
+                    ? 'bg-gray-100 border-gray-100 border-l-4'
                     : 'border-gray-100 hover:bg-gray-50'
               }`}
               style={{
-                borderLeftColor: contact.mode === 'support' 
-                  ? '#AE3A8D'
-                  : selectedContact?.phone === contact.phone 
-                    ? '#AE3A8D'
+                borderLeftColor: contact.mode === 'support'
+                  ? '#425CC7'
+                  : selectedContact?.phone === contact.phone
+                    ? '#00567D'
                     : 'transparent',
                 borderLeftWidth: contact.mode === 'support' ? '4px' : selectedContact?.phone === contact.phone ? '4px' : '0'
               }}
               onClick={() => onSelectContact(contact)}
             >
               <div className="relative mr-4">
-                <div 
+                <div
                   className="w-10 h-10 rounded-full flex items-center justify-center text-white text-sm"
-                  style={{ 
-                    backgroundColor: contact.mode === 'support' ? '#AE3A8D' : '#AE3A8D' 
+                  style={{
+                    backgroundColor: contact.mode === 'support' ? '#425CC7' : '#00567D'
                   }}
                 >
                   {contact.mode === 'support' ? '👤' : contact.phone.slice(-2)}
                 </div>
                 {contact.mode === 'support' && (
-                  <div className="absolute -top-1 -right-1 w-2 h-2 bg-orange-600 rounded-full animate-pulse"></div>
+                  <div className="absolute -top-1 -right-1 w-2 h-2 rounded-full animate-pulse" style={{ backgroundColor: '#1F49B6' }}></div>
                 )}
               </div>
               <div className="flex-1">
                 <div className="flex items-center gap-2">
-                  <div className={`font-medium ${contact.mode === 'support' ? 'text-orange-700' : 'text-navetec-primary'}`}>
+                  <div className={`font-medium ${contact.mode === 'support' ? 'text-navetec-secondary-2' : 'text-navetec-primary'}`}>
                     {contact.phone}
                   </div>
                   {contact.mode === 'support' && (
-                    <span className="text-xs bg-orange-600 text-white px-2 py-0.5 rounded">
+                    <span className="text-xs text-white px-2 py-0.5 rounded" style={{ backgroundColor: '#1F49B6' }}>
                       Soporte
                     </span>
                   )}
                 </div>
-                <div className={`text-sm truncate ${contact.mode === 'support' ? 'text-orange-600' : 'text-gray-500'}`}>
+                <div className={`text-sm truncate ${contact.mode === 'support' ? 'text-navetec-secondary-2' : 'text-gray-500'}`}>
                   {contact.lastMessage?.text.substring(0, 30)}...
                 </div>
               </div>
               <button
                 className="px-3 py-1 rounded-md text-xs font-medium transition-all"
                 style={{
-                  backgroundColor: contact.mode === 'support' 
-                    ? '#AE3A8D' 
-                    : contact.isHumanMode 
-                      ? '#AE3A8D' 
+                  backgroundColor: contact.mode === 'support'
+                    ? '#425CC7'
+                    : contact.isHumanMode
+                      ? '#00567D'
                       : 'white',
-                  color: contact.mode === 'support' || contact.isHumanMode ? 'white' : '#CCB6B6',
-                  border: contact.mode === 'support' || contact.isHumanMode ? 'none' : '1px solid #CCB6B6'
+                  color: contact.mode === 'support' || contact.isHumanMode ? 'white' : '#87A9E2',
+                  border: contact.mode === 'support' || contact.isHumanMode ? 'none' : '1px solid #87A9E2'
                 }}
                 onClick={(e) => {
                   e.stopPropagation();

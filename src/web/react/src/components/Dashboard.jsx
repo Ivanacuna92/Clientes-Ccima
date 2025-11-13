@@ -128,7 +128,7 @@ function Dashboard() {
 
 function StatCard({ title, value }) {
   return (
-    <div className="bg-white rounded-lg border border-gray-200 p-6 hover:border-navetec-primary transition-all">
+    <div className="bg-white rounded-lg border border-gray-200 border-l-4 border-l-navetec-accent-red p-6 hover:border-navetec-accent-red transition-all hover:shadow-md">
       <h3 className="text-xs text-gray-600 uppercase tracking-wider mb-2">{title}</h3>
       <p className="text-2xl font-light text-navetec-primary">{value}</p>
     </div>
@@ -137,7 +137,7 @@ function StatCard({ title, value }) {
 
 function InsightCard({ title, value }) {
   return (
-    <div className="bg-navetec-primary rounded-lg text-white p-6">
+    <div className="bg-navetec-primary rounded-lg text-white p-6 hover:shadow-lg transition-all">
       <h4 className="text-xs uppercase tracking-wider mb-2 opacity-70">{title}</h4>
       <p className="text-3xl font-light">{value}</p>
     </div>

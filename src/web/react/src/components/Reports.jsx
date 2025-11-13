@@ -297,7 +297,7 @@ function Reports() {
 
   return (
     <div className="p-8 max-w-full overflow-auto">
-      <div className="bg-white rounded-lg shadow-sm p-6">
+      <div className="bg-white rounded-lg shadow-sm p-6 border-l-4 border-l-navetec-accent-red">
         <div className="flex justify-between items-center mb-6">
         <h2 className="text-2xl font-light text-navetec-primary">Reporte de Conversaciones</h2>
         <div className="flex gap-4 items-center">
@@ -323,7 +323,7 @@ function Reports() {
           {pendingAnalysis && !analyzing && (
             <button
               onClick={() => analyzeAllConversations(true)}
-              className="px-4 py-2 bg-yellow-500 text-white rounded-md hover:bg-yellow-600 transition-all mr-2 min-w-[180px]"
+              className="px-4 py-2 bg-navetec-secondary-2 text-white rounded-md hover:bg-navetec-secondary-1 transition-all mr-2 min-w-[180px]"
             >
               Reanudar Análisis ({analyzedIds.size} completados)
             </button>
@@ -339,14 +339,14 @@ function Reports() {
           </button>
           <button
             onClick={reAnalyzeAll}
-            className="px-4 py-2 bg-orange-500 text-white rounded-md hover:bg-orange-600 transition-all mr-2 min-w-[180px]"
+            className="px-4 py-2 bg-navetec-primary-medium text-white rounded-md hover:bg-navetec-primary-dark transition-all mr-2 min-w-[180px]"
             disabled={reports.length === 0 || analyzing}
           >
             Volver a analizar con IA
           </button>
           <button
             onClick={exportToCSV}
-            className="px-4 py-2 bg-navetec-primary-dark text-white rounded-md hover:bg-navetec-secondary-4 transition-all"
+            className="px-4 py-2 bg-navetec-accent-red text-white rounded-md hover:bg-navetec-accent-red-dark transition-all"
             disabled={reports.length === 0}
           >
             Exportar CSV
@@ -585,29 +585,29 @@ function Reports() {
       {reports.length > 0 && (
         <div className="mt-6 pt-6 border-t border-gray-200">
           <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
-            <div className="bg-gray-50 rounded-lg p-4">
-              <div className="text-sm text-gray-500">Total Conversaciones</div>
-              <div className="text-2xl font-semibold text-navetec-primary-dark">{reports.length}</div>
+            <div className="bg-navetec-accent-red/10 rounded-lg p-4 border border-navetec-accent-red/20 border-l-4 border-l-navetec-accent-red hover:shadow-md transition-all">
+              <div className="text-sm text-navetec-accent-red-dark">Total Conversaciones</div>
+              <div className="text-2xl font-semibold text-navetec-accent-red">{reports.length}</div>
             </div>
-            <div className="bg-navetec-secondary-2/10 rounded-lg p-4">
+            <div className="bg-navetec-secondary-2/10 rounded-lg p-4 border border-gray-200 border-l-4 border-l-navetec-accent-red hover:shadow-md transition-all">
               <div className="text-sm text-navetec-primary">Posibles Ventas</div>
               <div className="text-2xl font-semibold text-navetec-primary-dark">
                 {reports.filter(r => r.posibleVenta).length}
               </div>
             </div>
-            <div className="bg-navetec-secondary-3/10 rounded-lg p-4">
+            <div className="bg-navetec-secondary-3/10 rounded-lg p-4 border border-gray-200 border-l-4 border-l-navetec-accent-red hover:shadow-md transition-all">
               <div className="text-sm text-navetec-secondary-3">Analizados con IA</div>
               <div className="text-2xl font-semibold text-navetec-primary-dark">
                 {reports.filter(r => r.ventaCerrada || r.analizadoIA || analyzedIds.has(r.id)).length}
               </div>
             </div>
-            <div className="bg-navetec-secondary-1/10 rounded-lg p-4">
+            <div className="bg-navetec-secondary-1/10 rounded-lg p-4 border border-gray-200 border-l-4 border-l-navetec-accent-red hover:shadow-md transition-all">
               <div className="text-sm text-navetec-secondary-1">Citas Agendadas</div>
               <div className="text-2xl font-semibold text-navetec-primary-dark">
                 {reports.filter(r => r.citaAgendada).length}
               </div>
             </div>
-            <div className="bg-navetec-primary-light/10 rounded-lg p-4">
+            <div className="bg-navetec-primary-light/10 rounded-lg p-4 border border-gray-200 border-l-4 border-l-navetec-accent-red hover:shadow-md transition-all">
               <div className="text-sm text-navetec-primary-light">Con Soporte</div>
               <div className="text-2xl font-semibold text-navetec-primary-dark">
                 {reports.filter(r => r.soporteActivado).length}

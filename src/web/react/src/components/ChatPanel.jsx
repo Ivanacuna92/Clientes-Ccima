@@ -148,25 +148,25 @@ function ChatPanel({ contact, onUpdateContact }) {
   }
 
   const isSupport = contact.mode === 'support';
-  const supportColor = '#EA580C'; // Naranja más sutil
+  const supportColor = '#425CC7'; // Color secundario de la paleta
   
   return (
-    <div className="flex-1 flex flex-col bg-gray-50 transition-all duration-300" style={isSupport ? { backgroundColor: `${supportColor}10` } : {}}>
-      <div className={`bg-white border-b px-6 py-4 flex items-center justify-between transition-all duration-300 ${isSupport ? 'border-orange-400' : 'border-gray-200'}`} style={isSupport ? { borderWidth: '2px', backgroundColor: '#FFF7ED' } : {}}>
+    <div className="flex-1 flex flex-col bg-gray-50 transition-all duration-300" style={isSupport ? { backgroundColor: '#F0F4FF' } : {}}>
+      <div className={`bg-white border-b px-6 py-4 flex items-center justify-between transition-all duration-300 ${isSupport ? 'border-blue-400' : 'border-gray-200'}`} style={isSupport ? { borderWidth: '2px', backgroundColor: '#F8FAFF' } : {}}>
         <div className="flex items-center gap-4">
           <div className="relative">
             <div className="w-10 h-10 rounded-full flex items-center justify-center text-white font-light" style={{ backgroundColor: isSupport ? supportColor : '#00567D' }}>
               {isSupport ? '👤' : contact.phone.slice(-2)}
             </div>
             {isSupport && (
-              <div className="absolute -top-1 -right-1 w-2 h-2 bg-orange-600 rounded-full animate-pulse"></div>
+              <div className="absolute -top-1 -right-1 w-2 h-2 rounded-full animate-pulse" style={{ backgroundColor: '#1F49B6' }}></div>
             )}
           </div>
           <div>
             <div className="flex items-center gap-2">
               <h3 className="font-medium" style={{ color: isSupport ? supportColor : 'black' }}>{contact.phone}</h3>
               {isSupport && (
-                <span className="text-xs bg-orange-600 text-white px-2 py-0.5 rounded">
+                <span className="text-xs text-white px-2 py-0.5 rounded" style={{ backgroundColor: '#1F49B6' }}>
                   Atención Personalizada
                 </span>
               )}
@@ -371,23 +371,23 @@ function ChatPanel({ contact, onUpdateContact }) {
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
           <div className="bg-white rounded-lg p-6 max-w-md w-full mx-4 shadow-xl">
             <div className="flex items-center justify-center mb-4">
-              <div className="w-16 h-16 rounded-full flex items-center justify-center" style={{ backgroundColor: '#EA580C' }}>
+              <div className="w-16 h-16 rounded-full flex items-center justify-center" style={{ backgroundColor: '#425CC7' }}>
                 <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M18 18.72a9.094 9.094 0 003.741-.479 3 3 0 00-4.682-2.72m.94 3.198l.001.031c0 .225-.012.447-.037.666A11.944 11.944 0 0112 21c-2.17 0-4.207-.576-5.963-1.584A6.062 6.062 0 016 18.719m12 0a5.971 5.971 0 00-.941-3.197m0 0A5.995 5.995 0 0012 12.75a5.995 5.995 0 00-5.058 2.772m0 0a3 3 0 00-4.681 2.72 8.986 8.986 0 003.74.477m.94-3.197a5.971 5.971 0 00-.94 3.197M15 6.75a3 3 0 11-6 0 3 3 0 016 0zm6 3a2.25 2.25 0 11-4.5 0 2.25 2.25 0 014.5 0zm-13.5 0a2.25 2.25 0 11-4.5 0 2.25 2.25 0 014.5 0z" />
                 </svg>
               </div>
             </div>
-            <h3 className="text-xl font-semibold mb-2 text-center" style={{ color: '#EA580C' }}>
+            <h3 className="text-xl font-semibold mb-2 text-center" style={{ color: '#425CC7' }}>
               Cliente Solicita Soporte
             </h3>
             <p className="text-gray-600 mb-4 text-center">
               El cliente ha solicitado atención personalizada. Puedes tomar el control de la conversación.
             </p>
-            <div className="bg-orange-50 border border-orange-200 rounded p-3 mb-4">
-              <p className="text-sm text-orange-800">
+            <div className="bg-blue-50 border border-blue-200 rounded p-3 mb-4">
+              <p className="text-sm" style={{ color: '#002D74' }}>
                 <strong>Cliente:</strong> {contact.phone}
               </p>
-              <p className="text-sm text-orange-800 mt-1">
+              <p className="text-sm mt-1" style={{ color: '#002D74' }}>
                 <strong>Estado:</strong> Esperando respuesta de soporte
               </p>
             </div>
@@ -404,21 +404,21 @@ function ChatPanel({ contact, onUpdateContact }) {
                     // Obtener el nombre del usuario actual
                     const currentUser = JSON.parse(localStorage.getItem('currentUser') || '{}');
                     const userName = currentUser.name || 'un especialista';
-                    
+
                     const presentationMessage = `Hola, te atiende ${userName}. 👋\n\nSerá un placer ayudarte con tu consulta. ¿En qué puedo asistirte hoy?`;
-                    
+
                     // Cerrar el modal inmediatamente
                     setShowSupportModal(false);
-                    
+
                     // Enviar mensaje
                     await sendMessage(contact.phone, presentationMessage);
-                    
+
                     const newMessage = {
                       type: 'HUMAN',
                       message: presentationMessage,
                       timestamp: new Date().toISOString()
                     };
-                    
+
                     onUpdateContact({
                       ...contact,
                       messages: [...(contact.messages || []), newMessage]
@@ -429,7 +429,7 @@ function ChatPanel({ contact, onUpdateContact }) {
                   }
                 }}
                 className="flex-1 px-4 py-2 rounded-md text-white transition-all hover:opacity-90"
-                style={{ backgroundColor: '#EA580C' }}
+                style={{ backgroundColor: '#425CC7' }}
               >
                 Tomar Control
               </button>

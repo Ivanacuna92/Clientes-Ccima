@@ -1,18 +1,17 @@
 import React from 'react';
-import logo from '../assets/logo.svg';
-import icono from '../assets/icono.jpeg'
+import logo from '../assets/logo.png';
 
 function Header({ currentView, onViewChange, user, onLogout }) {
   return (
-    <header className="bg-white border-b border-gray-200 px-8 py-4">
+    <header className="bg-white border-b-2 border-navetec-accent-red px-8 py-4">
       <div className="flex justify-between items-center">
-        <img src={icono} alt="Navetec" className="h-12" />
+        <img src={logo} alt="CCIMA" className="h-12" />
         <nav className="flex gap-1">
           {user?.role === 'admin' && (
-            <button 
+            <button
               className={`px-8 py-2 rounded-md font-medium transition-all ${
-                currentView === 'dashboard' 
-                  ? 'bg-navetec-primary text-white' 
+                currentView === 'dashboard'
+                  ? 'bg-navetec-primary text-white'
                   : 'text-gray-600 hover:text-navetec-primary'
               }`}
               onClick={() => onViewChange('dashboard')}
@@ -20,27 +19,36 @@ function Header({ currentView, onViewChange, user, onLogout }) {
               Dashboard
             </button>
           )}
-          <button 
+          <button
             className={`px-8 py-2 rounded-md font-medium transition-all ${
-              currentView === 'reports' 
-                ? 'bg-navetec-primary text-white' 
+              currentView === 'reports'
+                ? 'bg-navetec-primary text-white'
                 : 'text-gray-600 hover:text-navetec-primary'
             }`}
             onClick={() => onViewChange('reports')}
           >
             Reportes
           </button>
-          <button 
+          <button
             className={`px-8 py-2 rounded-md font-medium transition-all ${
-              currentView === 'contacts' 
-                ? 'bg-navetec-primary text-white' 
+              currentView === 'contacts'
+                ? 'bg-navetec-primary text-white'
                 : 'text-gray-600 hover:text-navetec-primary'
             }`}
             onClick={() => onViewChange('contacts')}
           >
             Contactos
           </button>
-         
+          <button
+            className={`px-8 py-2 rounded-md font-medium transition-all ${
+              currentView === 'qr-session'
+                ? 'bg-navetec-primary text-white'
+                : 'text-gray-600 hover:text-navetec-primary'
+            }`}
+            onClick={() => onViewChange('qr-session')}
+          >
+            Mi Sesión
+          </button>
         </nav>
         
         {user && (
