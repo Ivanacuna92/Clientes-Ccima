@@ -8,16 +8,28 @@ function Header({ currentView, onViewChange, user, onLogout }) {
         <img src={logo} alt="CCIMA" className="h-12" />
         <nav className="flex gap-1">
           {user?.role === 'admin' && (
-            <button
-              className={`px-8 py-2 rounded-md font-medium transition-all ${
-                currentView === 'dashboard'
-                  ? 'bg-navetec-primary text-white'
-                  : 'text-gray-600 hover:text-navetec-primary'
-              }`}
-              onClick={() => onViewChange('dashboard')}
-            >
-              Dashboard
-            </button>
+            <>
+              <button
+                className={`px-8 py-2 rounded-md font-medium transition-all ${
+                  currentView === 'dashboard'
+                    ? 'bg-navetec-primary text-white'
+                    : 'text-gray-600 hover:text-navetec-primary'
+                }`}
+                onClick={() => onViewChange('dashboard')}
+              >
+                Dashboard
+              </button>
+              <button
+                className={`px-8 py-2 rounded-md font-medium transition-all ${
+                  currentView === 'clientes'
+                    ? 'bg-navetec-primary text-white'
+                    : 'text-gray-600 hover:text-navetec-primary'
+                }`}
+                onClick={() => onViewChange('clientes')}
+              >
+                Gestión Clientes
+              </button>
+            </>
           )}
           <button
             className={`px-8 py-2 rounded-md font-medium transition-all ${

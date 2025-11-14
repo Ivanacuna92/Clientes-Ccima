@@ -4,6 +4,7 @@ import ChatPanel from './components/ChatPanel';
 import Dashboard from './components/Dashboard';
 import Reports from './components/Reports';
 import QRSession from './components/QRSession';
+import ClientesUpload from './components/ClientesUpload';
 import Header from './components/Header';
 import Login from './components/Login';
 import { checkAuth, logout } from './services/api';
@@ -130,6 +131,8 @@ function App() {
       />
       {currentView === 'dashboard' && user?.role === 'admin' ? (
         <Dashboard />
+      ) : currentView === 'clientes' && user?.role === 'admin' ? (
+        <ClientesUpload />
       ) : currentView === 'reports' ? (
         <Reports />
       ) : currentView === 'qr-session' ? (

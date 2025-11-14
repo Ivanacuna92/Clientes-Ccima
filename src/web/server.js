@@ -9,6 +9,7 @@ const salesManager = require("../services/salesManager");
 const conversationAnalyzer = require("../services/conversationAnalyzer");
 const authService = require("../services/authService");
 const csvService = require("../services/csvService");
+const xlsxService = require("../services/xlsxService");
 const {
   requireAuth,
   requireAdmin,
@@ -553,8 +554,8 @@ class WebServer {
 
     // ===== ENDPOINTS DE GESTIÓN DE CSV (SOLO ADMIN) =====
 
-    // Configurar multer para subida de archivos
-    const upload = multer({
+    // Configurar multer para subida de archivos CSV
+    const uploadCSV = multer({
       limits: { fileSize: 10 * 1024 * 1024 }, // Límite de 10MB
       fileFilter: (req, file, cb) => {
         if (
@@ -568,11 +569,26 @@ class WebServer {
       },
     });
 
+    // Configurar multer para subida de archivos XLSX
+    const uploadXLSX = multer({
+      limits: { fileSize: 10 * 1024 * 1024 }, // Límite de 10MB
+      fileFilter: (req, file, cb) => {
+        if (
+          file.mimetype === "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" ||
+          file.originalname.endsWith(".xlsx")
+        ) {
+          cb(null, true);
+        } else {
+          cb(new Error("Solo se permiten archivos XLSX"));
+        }
+      },
+    });
+
     // Subir archivo CSV
     this.app.post(
       "/api/csv/upload",
       requireAdmin,
-      upload.single("csv"),
+      uploadCSV.single("csv"),
       async (req, res) => {
         try {
           if (!req.file) {
@@ -623,14 +639,13 @@ class WebServer {
     // Descargar plantilla CSV
     this.app.get("/api/csv/template", (req, res) => {
       try {
-        const templateContent = `Parque Industrial,Ubicación,Tipo,Ancho,Largo,Area (m2),Precio,Estado,Información Extra,Ventajas Estratégicas
-Vernes,Carr. México - Qro,Nave Industrial,50,30,1500,750000,Disponible,Incluye oficinas administrativas,Acceso directo a autopistas principales
-LuisOnorio,Av. Constituyentes,Micronave,25,20,500,350000,Pre-Venta,Cuenta con muelle de carga,Zona de alto flujo comercial`;
+        const templateContent = `LLAVE,LOTE,CONDOMINIO,CLUSTER,DESARROLLO,APARTADO_TELEGRAM,CLIENTE,RFC,IDCIF,USO_CFDI,RAZON_SOCIAL,DOMICILIO_FISCAL,TELEFONO,CORREO,M2,TOTAL_OPERACION,ENGANCHE,FINANCIAMIENTO,FIRMA_CONTRATO,FIRMA_CONVENIO,FIN_CORRIDA,TOTAL_MENSUALIDADES,NO_1ER_MENS,1ER_MENSUALIDAD,NO_2DA_MENS,2DA_MENSUALIDAD,NO_3ER_MENS,3ER_MENSUALIDAD,TIPO_DE_INTERES,MENS_ENTREGA,FECHA_ENTREGA_REAL,INICIO_CORRIDA,Porcentaje_1,Porcentaje_2,Porcentaje_3,Val_post_porcent1,Val_post_porcent2,FECHA_PRIMER_ABONO,PAGADO,DEUDA,FECHA_ENTREGA_LOTE,ESTATUS_CM,TIPO_LOTE,LINK_SAT,NOTAS_DE_PAGOS,BONO_REFERIDO,ESTATUS,MOTIVO ESTATUS,RESULTADO,ORIGEN,DESTINO,ELIMINADOS_GESTOR,CLAVE,FECHA_INI_INT,EXTENSION
+F-1ESTEPA 1,F-1,ESTEPA,1,PB CIM,,ERENDIRA ARACELI GARCIA CAMACHO,GACE950209BD8, ,G03,,,4646518962,gcea_aese12@outlook.es,128,534251.52,48568.32,485683.2,2023-01-04,,2033-01-01,120,30,4047.36,90,6157.15,0,0,SALDOS VENCIDOS,ENTREGADO,2025-02-22,2023-02-01,0,0.01,0,364262.4,0,2022-11-24,181515.32,542617.3,,VENDIDO,A,https://siat.sat.gob.mx/app/qr/faces/pages/mobile/validadorqr.jsf?D1=10&D2=1&D3=_GACE950209BD8,,,OK,,,0,0,F-1ESTEPA 1,-,2025-08-01,SI`;
 
         res.setHeader("Content-Type", "text/csv");
         res.setHeader(
           "Content-Disposition",
-          'attachment; filename="plantilla_naves.csv"'
+          'attachment; filename="plantilla_clientes.csv"'
         );
         res.send(templateContent);
       } catch (error) {
@@ -651,6 +666,158 @@ LuisOnorio,Av. Constituyentes,Micronave,25,20,500,350000,Pre-Venta,Cuenta con mu
         res.json({ results });
       } catch (error) {
         console.error("Error buscando en CSV:", error);
+        res.status(500).json({ error: "Error en la búsqueda" });
+      }
+    });
+
+    // ===== ENDPOINTS DE GESTIÓN DE XLSX (SOLO ADMIN) =====
+
+    // Subir archivo XLSX
+    this.app.post(
+      "/api/xlsx/upload",
+      requireAdmin,
+      uploadXLSX.single("xlsx"),
+      async (req, res) => {
+        try {
+          if (!req.file) {
+            return res
+              .status(400)
+              .json({ error: "No se proporcionó archivo XLSX" });
+          }
+
+          const result = await xlsxService.saveXLSX(
+            req.file.originalname,
+            req.file.buffer
+          );
+
+          res.json(result);
+        } catch (error) {
+          console.error("Error subiendo XLSX:", error);
+          res.status(500).json({ error: error.message });
+        }
+      }
+    );
+
+    // Listar archivos XLSX subidos
+    this.app.get("/api/xlsx/list", requireAdmin, async (req, res) => {
+      try {
+        const files = await xlsxService.listXLSXFiles();
+        res.json({ files });
+      } catch (error) {
+        console.error("Error listando XLSXs:", error);
+        res.status(500).json({ error: "Error obteniendo lista de archivos" });
+      }
+    });
+
+    // Eliminar archivo XLSX
+    this.app.delete(
+      "/api/xlsx/delete/:filename",
+      requireAdmin,
+      async (req, res) => {
+        try {
+          const result = await xlsxService.deleteXLSX(req.params.filename);
+          res.json(result);
+        } catch (error) {
+          console.error("Error eliminando XLSX:", error);
+          res.status(500).json({ error: error.message });
+        }
+      }
+    );
+
+    // Descargar plantilla XLSX
+    this.app.get("/api/xlsx/template", async (req, res) => {
+      try {
+        // Crear un workbook y una hoja con la plantilla
+        const XLSX = require('xlsx');
+        const workbook = XLSX.utils.book_new();
+
+        const templateData = [
+          {
+            'LLAVE': 'F-1ESTEPA 1',
+            'LOTE': 'F-1',
+            'CONDOMINIO': 'ESTEPA',
+            'CLUSTER': 1,
+            'DESARROLLO': 'PB CIM',
+            'APARTADO_TELEGRAM': '',
+            'CLIENTE': 'ERENDIRA ARACELI GARCIA CAMACHO',
+            'RFC': 'GACE950209BD8',
+            'IDCIF': ' ',
+            'USO_CFDI': 'G03',
+            'RAZON_SOCIAL': '',
+            'DOMICILIO_FISCAL': '',
+            'TELEFONO': '4646518962',
+            'CORREO': 'gcea_aese12@outlook.es',
+            'M2': 128,
+            'TOTAL_OPERACION': 534251.52,
+            'ENGANCHE': 48568.32,
+            'FINANCIAMIENTO': 485683.2,
+            'FIRMA_CONTRATO': new Date(2023, 0, 4),
+            'FIRMA_CONVENIO': '',
+            'FIN_CORRIDA': new Date(2033, 0, 1),
+            'TOTAL_MENSUALIDADES': 120,
+            'NO_1ER_MENS': 30,
+            '1ER_MENSUALIDAD': 4047.36,
+            'NO_2DA_MENS': 90,
+            '2DA_MENSUALIDAD': 6157.15,
+            'NO_3ER_MENS': 0,
+            '3ER_MENSUALIDAD': 0,
+            'TIPO_DE_INTERES': 'SALDOS VENCIDOS',
+            'MENS_ENTREGA': 'ENTREGADO',
+            'FECHA_ENTREGA_REAL': new Date(2025, 1, 22),
+            'INICIO_CORRIDA': new Date(2023, 1, 1),
+            'Porcentaje_1': 0,
+            'Porcentaje_2': 0.01,
+            'Porcentaje_3': 0,
+            'Val_post_porcent1': 364262.4,
+            'Val_post_porcent2': 0,
+            'FECHA_PRIMER_ABONO': new Date(2022, 10, 24),
+            'PAGADO': 181515.32,
+            'DEUDA': 542617.3,
+            'FECHA_ENTREGA_LOTE': '',
+            'ESTATUS_CM': 'VENDIDO',
+            'TIPO_LOTE': 'A',
+            'LINK_SAT': 'https://siat.sat.gob.mx/app/qr/faces/pages/mobile/validadorqr.jsf?D1=10&D2=1&D3=_GACE950209BD8',
+            'NOTAS_DE_PAGOS': '',
+            'BONO_REFERIDO': '',
+            'ESTATUS': 'OK',
+            'MOTIVO ESTATUS': '',
+            'RESULTADO': '',
+            'ORIGEN': 0,
+            'DESTINO': 0,
+            'ELIMINADOS_GESTOR': 'F-1ESTEPA 1',
+            'CLAVE': '-',
+            'FECHA_INI_INT': new Date(2025, 7, 1),
+            'EXTENSION': 'SI'
+          }
+        ];
+
+        const worksheet = XLSX.utils.json_to_sheet(templateData);
+        XLSX.utils.book_append_sheet(workbook, worksheet, 'Clientes');
+
+        // Generar buffer
+        const buffer = XLSX.write(workbook, { type: 'buffer', bookType: 'xlsx' });
+
+        res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+        res.setHeader('Content-Disposition', 'attachment; filename="plantilla_clientes.xlsx"');
+        res.send(buffer);
+      } catch (error) {
+        console.error("Error descargando plantilla XLSX:", error);
+        res.status(500).json({ error: "Error generando plantilla" });
+      }
+    });
+
+    // Buscar en XLSXs (endpoint interno para la IA)
+    this.app.post("/api/xlsx/search", requireAuth, async (req, res) => {
+      try {
+        const { query } = req.body;
+        if (!query) {
+          return res.status(400).json({ error: "Query es requerido" });
+        }
+
+        const results = await xlsxService.searchInXLSX(query);
+        res.json({ results });
+      } catch (error) {
+        console.error("Error buscando en XLSX:", error);
         res.status(500).json({ error: "Error en la búsqueda" });
       }
     });

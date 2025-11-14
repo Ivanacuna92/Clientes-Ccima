@@ -1,13 +1,14 @@
 const fs = require('fs').promises;
 const path = require('path');
-const csv = require('csv-parse/sync');
+const xlsx = require('xlsx');
 
-class CSVService {
+class XLSXService {
   constructor() {
     this.dataDir = path.join(process.cwd(), 'data', 'clientes');
     this.ensureDataDir();
 
-    // Campos clave recomendados (sistema flexible)
+    // Campos clave recomendados (pero no obligatorios todos)
+    // El sistema es flexible y acepta cualquier estructura
     this.recommendedFields = [
       'LLAVE', 'LOTE', 'CONDOMINIO', 'CLUSTER', 'DESARROLLO', 'CLIENTE',
       'RFC', 'IDCIF', 'USO_CFDI', 'TELEFONO', 'CORREO', 'M2',
@@ -25,40 +26,50 @@ class CSVService {
     }
   }
 
-  async saveCSV(filename, content) {
+  async saveXLSX(filename, buffer) {
     try {
-      // Primero parsear para validar
-      const records = csv.parse(content, {
-        columns: true,
-        skip_empty_lines: true,
-        trim: true
+      // Leer el archivo XLSX desde el buffer
+      const workbook = xlsx.read(buffer, { type: 'buffer' });
+
+      // Obtener la primera hoja
+      const sheetName = workbook.SheetNames[0];
+      if (!sheetName) {
+        throw new Error('El archivo XLSX no contiene hojas');
+      }
+
+      const sheet = workbook.Sheets[sheetName];
+
+      // Convertir a JSON
+      const records = xlsx.utils.sheet_to_json(sheet, {
+        raw: false, // Convertir todo a strings
+        defval: '' // Valor por defecto para celdas vacías
       });
 
       // Validar que tenga registros
       if (records.length === 0) {
-        throw new Error('El archivo CSV está vacío o no tiene datos válidos');
+        throw new Error('El archivo XLSX está vacío o no tiene datos válidos');
       }
 
       // Validación flexible: solo verificar que tenga al menos una columna
-      const csvFields = Object.keys(records[0]);
-      if (csvFields.length === 0) {
+      const xlsxFields = Object.keys(records[0]);
+      if (xlsxFields.length === 0) {
         throw new Error('El archivo no tiene columnas válidas');
       }
 
-      // ELIMINAR TODOS LOS ARCHIVOS CSV EXISTENTES
+      // ELIMINAR TODOS LOS ARCHIVOS XLSX EXISTENTES
       const existingFiles = await fs.readdir(this.dataDir);
       for (const file of existingFiles) {
-        if (file.endsWith('.csv')) {
+        if (file.endsWith('.xlsx')) {
           await fs.unlink(path.join(this.dataDir, file));
           console.log(`Archivo anterior eliminado: ${file}`);
         }
       }
 
-      // Guardar el nuevo archivo con timestamp para evitar duplicados
+      // Guardar el nuevo archivo con timestamp
       const timestamp = new Date().toISOString().split('T')[0];
-      const newFilename = `clientes_${timestamp}.csv`;
+      const newFilename = `clientes_${timestamp}.xlsx`;
       const filePath = path.join(this.dataDir, newFilename);
-      await fs.writeFile(filePath, content);
+      await fs.writeFile(filePath, buffer);
 
       return {
         success: true,
@@ -67,25 +78,27 @@ class CSVService {
         records
       };
     } catch (error) {
-      console.error('Error guardando CSV:', error);
+      console.error('Error guardando XLSX:', error);
       throw new Error(error.message);
     }
   }
 
   async getAllRecords() {
     try {
-      const files = await this.listCSVFiles();
+      const files = await this.listXLSXFiles();
       let allRecords = [];
 
       for (const file of files) {
         const filePath = path.join(this.dataDir, file.name);
-        const content = await fs.readFile(filePath, 'utf8');
+        const buffer = await fs.readFile(filePath);
 
         try {
-          const records = csv.parse(content, {
-            columns: true,
-            skip_empty_lines: true,
-            trim: true
+          const workbook = xlsx.read(buffer, { type: 'buffer' });
+          const sheetName = workbook.SheetNames[0];
+          const sheet = workbook.Sheets[sheetName];
+          const records = xlsx.utils.sheet_to_json(sheet, {
+            raw: false,
+            defval: ''
           });
 
           allRecords = allRecords.concat(records);
@@ -96,12 +109,12 @@ class CSVService {
 
       return allRecords;
     } catch (error) {
-      console.error('Error obteniendo todos los registros:', error);
+      console.error('Error obteniendo todos los registros XLSX:', error);
       return [];
     }
   }
 
-  async searchInCSV(query) {
+  async searchInXLSX(query) {
     try {
       const records = await this.getAllRecords();
 
@@ -128,7 +141,7 @@ class CSVService {
 
       return results;
     } catch (error) {
-      console.error('Error buscando en CSV:', error);
+      console.error('Error buscando en XLSX:', error);
       return [];
     }
   }
@@ -144,30 +157,30 @@ class CSVService {
         return String(fieldValue).toLowerCase().includes(normalizedValue);
       });
     } catch (error) {
-      console.error('Error buscando por campo:', error);
+      console.error('Error buscando por campo en XLSX:', error);
       return [];
     }
   }
 
-  async listCSVFiles() {
+  async listXLSXFiles() {
     try {
       const files = await fs.readdir(this.dataDir);
-      const csvFiles = files.filter(f => f.endsWith('.csv'));
+      const xlsxFiles = files.filter(f => f.endsWith('.xlsx'));
 
       const fileDetails = await Promise.all(
-        csvFiles.map(async (filename) => {
+        xlsxFiles.map(async (filename) => {
           const filePath = path.join(this.dataDir, filename);
           const stats = await fs.stat(filePath);
 
           // Contar registros
           let records = 0;
           try {
-            const content = await fs.readFile(filePath, 'utf8');
-            const parsed = csv.parse(content, {
-              columns: true,
-              skip_empty_lines: true
-            });
-            records = parsed.length;
+            const buffer = await fs.readFile(filePath);
+            const workbook = xlsx.read(buffer, { type: 'buffer' });
+            const sheetName = workbook.SheetNames[0];
+            const sheet = workbook.Sheets[sheetName];
+            const data = xlsx.utils.sheet_to_json(sheet);
+            records = data.length;
           } catch (e) {
             console.error(`Error contando registros en ${filename}:`, e);
           }
@@ -183,18 +196,18 @@ class CSVService {
 
       return fileDetails.sort((a, b) => b.uploadDate - a.uploadDate);
     } catch (error) {
-      console.error('Error listando archivos CSV:', error);
+      console.error('Error listando archivos XLSX:', error);
       return [];
     }
   }
 
-  async deleteCSV(filename) {
+  async deleteXLSX(filename) {
     try {
       const filePath = path.join(this.dataDir, filename);
       await fs.unlink(filePath);
       return { success: true, message: `Archivo ${filename} eliminado` };
     } catch (error) {
-      console.error('Error eliminando CSV:', error);
+      console.error('Error eliminando XLSX:', error);
       throw new Error('Error eliminando archivo: ' + error.message);
     }
   }
@@ -280,4 +293,4 @@ class CSVService {
   }
 }
 
-module.exports = new CSVService();
+module.exports = new XLSXService();

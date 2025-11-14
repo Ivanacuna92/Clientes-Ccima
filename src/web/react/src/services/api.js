@@ -306,10 +306,51 @@ export async function deleteCSV(filename) {
   const response = await fetchWithCredentials(`${API_BASE}/csv/delete/${filename}`, {
     method: 'DELETE'
   });
-  
+
   if (!response.ok) {
     throw new Error('Error al eliminar archivo CSV');
   }
-  
+
+  return response.json();
+}
+
+// ===== FUNCIONES DE GESTIÓN DE XLSX =====
+
+export async function uploadXLSX(formData) {
+  const response = await fetch(`${API_BASE}/xlsx/upload`, {
+    method: 'POST',
+    credentials: 'include',
+    body: formData
+  });
+
+  if (!response.ok) {
+    const errorData = await response.json();
+    const error = new Error(errorData.error || 'Error al cargar archivo XLSX');
+    error.response = { data: errorData };
+    throw error;
+  }
+
+  return response.json();
+}
+
+export async function getUploadedXLSXs() {
+  const response = await fetchWithCredentials(`${API_BASE}/xlsx/list`);
+
+  if (!response.ok) {
+    throw new Error('Error al obtener archivos XLSX');
+  }
+
+  return response.json();
+}
+
+export async function deleteXLSX(filename) {
+  const response = await fetchWithCredentials(`${API_BASE}/xlsx/delete/${filename}`, {
+    method: 'DELETE'
+  });
+
+  if (!response.ok) {
+    throw new Error('Error al eliminar archivo XLSX');
+  }
+
   return response.json();
 }
